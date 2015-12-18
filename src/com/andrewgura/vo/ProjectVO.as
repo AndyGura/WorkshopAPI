@@ -1,11 +1,12 @@
 package com.andrewgura.vo {
+import flash.events.Event;
 import flash.utils.ByteArray;
 
 [Bindable]
 public class ProjectVO {
 
     public var name:String = 'UnnamedProject';
-    public var isChangesSaved:Boolean = true;
+    private var _isChangesSaved:Boolean = true;
     public var fileName:String;
 
     public function serialize():ByteArray {
@@ -18,5 +19,15 @@ public class ProjectVO {
         this.fileName = fileName;
     }
 
+    [Bindable(event="isChangesSavedChanged")]
+    public function get isChangesSaved():Boolean {
+        return _isChangesSaved;
+    }
+
+    public function set isChangesSaved(value:Boolean):void {
+        if (_isChangesSaved == value) return;
+        _isChangesSaved = value;
+        dispatchEvent(new Event("isChangesSavedChanged"));
+    }
 }
 }

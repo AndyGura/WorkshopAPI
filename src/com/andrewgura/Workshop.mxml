@@ -65,7 +65,7 @@
                     <menuitem label="{AppMenuConsts.SAVE}"
                               enabled="{mainModel.currentProject != null &amp;&amp; !mainModel.currentProject.isChangesSaved}"/>
                     <menuitem label="{AppMenuConsts.SAVE_AS}"
-                              enabled="{mainModel.currentProject != null &amp;&amp; !mainModel.currentProject.isChangesSaved}"/>
+                              enabled="{mainModel.currentProject != null}"/>
                     <menuitem label="{AppMenuConsts.CLOSE}" enabled="{mainModel.currentProject != null}"/>
                     <menuitem type="separator"/>
                     <menuitem label="{AppMenuConsts.EXIT}"/>

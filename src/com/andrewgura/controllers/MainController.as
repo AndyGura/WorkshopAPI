@@ -38,6 +38,12 @@ public class MainController {
     public static function createNewFile():void {
         mainModel.currentProject = new mainModel.config.projectClass();
         updateAppTitle();
+        mainModel.currentProject.addEventListener(
+                "isChangesSavedChanged",
+                function handle(e:Event):void {
+                    updateAppTitle();
+                }
+        );
     }
 
     public static function openFile():void {
@@ -60,6 +66,12 @@ public class MainController {
             updateAppTitle();
             f.removeEventListener(Event.COMPLETE, onFileLoaded);
             f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
+            mainModel.currentProject.addEventListener(
+                    "isChangesSavedChanged",
+                    function handle(e:Event):void {
+                        updateAppTitle();
+                    }
+            );
         }
 
         function onFileLoadError(event:Event):void {
@@ -83,14 +95,24 @@ public class MainController {
         fs.open(targetFile, FileMode.WRITE);
         fs.writeBytes(project.serialize());
         fs.close();
+        project.isChangesSaved = true;
+        updateAppTitle();
     }
 
     public static function saveCurrentProjectAs():void {
         var project:ProjectVO = mainModel.currentProject;
         var f:File = new File();
+        f.addEventListener(Event.COMPLETE, onSaveAsComplete);
         f.save(project.serialize(), project.name + '.' + mainModel.config.projectFileExtension);
-        trace('Saved file path: ' + f.nativePath);
-        //todo type code for saving file as
+    }
+
+    private static function onSaveAsComplete(event:Event):void {
+        var newProjectName:String = File(event.target).name;
+        newProjectName = newProjectName.substr(0, newProjectName.lastIndexOf('.'));
+        mainModel.currentProject.name = newProjectName;
+        mainModel.currentProject.fileName = File(event.target).nativePath;
+        mainModel.currentProject.isChangesSaved = true;
+        updateAppTitle();
     }
 
     public static function closeCurrentProject():void {
