@@ -6,6 +6,7 @@ public class MainModel {
 
     public var currentProject:ProjectVO;
     public var config:WorkshopConfig;
+    public var defaultProjectPath:String;
 
 }
 }

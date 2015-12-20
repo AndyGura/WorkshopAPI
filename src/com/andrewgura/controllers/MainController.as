@@ -1,4 +1,5 @@
 package com.andrewgura.controllers {
+import com.andrewgura.consts.SharedObjectConsts;
 import com.andrewgura.models.MainModel;
 import com.andrewgura.ui.popup.AppPopups;
 import com.andrewgura.ui.popup.PopupFactory;
@@ -18,6 +19,7 @@ public class MainController {
 
     public static function initApplication(model:MainModel):void {
         mainModel = model;
+        mainModel.defaultProjectPath = PersistanceController.getEncryptedResource(SharedObjectConsts.DEFAULT_PATH);
         updateAppTitle();
     }
 
@@ -49,37 +51,55 @@ public class MainController {
     }
 
     public static function openFile():void {
-
         var f:File = new File();
+        if (mainModel.defaultProjectPath) {
+            f = f.resolvePath(mainModel.defaultProjectPath);
+        }
         f.addEventListener(Event.SELECT, onFileSelected);
+        f.addEventListener(Event.CANCEL, onFileSelectionCancelled);
         f.browse([mainModel.config.projectFileFilter]);
 
         function onFileSelected(event:Event):void {
+            f.removeEventListener(Event.SELECT, onFileSelected);
+            f.removeEventListener(Event.CANCEL, onFileSelectionCancelled);
             f.addEventListener(Event.COMPLETE, onFileLoaded);
             f.addEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             f.load();
         }
 
+        function onFileSelectionCancelled(event:Event):void {
+            f.removeEventListener(Event.SELECT, onFileSelected);
+            f.removeEventListener(Event.CANCEL, onFileSelectionCancelled);
+        }
+
         function onFileLoaded(event:Event):void {
+            f.removeEventListener(Event.COMPLETE, onFileLoaded);
+            f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             var data:ByteArray = f.data;
             var name:String = f.name.substr(0, f.name.length - mainModel.config.projectFileExtension.length - 1);
             mainModel.currentProject = new mainModel.config.projectClass();
             mainModel.currentProject.deserialize(name, f.nativePath, data);
             updateAppTitle();
-            f.removeEventListener(Event.COMPLETE, onFileLoaded);
-            f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             mainModel.currentProject.addEventListener(
                     "isChangesSavedChanged",
                     function handle(e:Event):void {
                         updateAppTitle();
                     }
             );
+            mainModel.defaultProjectPath = f.nativePath.substr(
+                    0,
+                    Math.max(
+                            f.nativePath.lastIndexOf('/'),
+                            f.nativePath.lastIndexOf('\\')
+                    )
+            );
+            PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
         }
 
-        function onFileLoadError(event:Event):void {
+        function onFileLoadError(event:IOErrorEvent):void {
             f.removeEventListener(Event.COMPLETE, onFileLoaded);
             f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
-            trace("File load error");
+            PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't load project!\n" + event.text);
         }
     }
 
@@ -104,6 +124,9 @@ public class MainController {
     public static function saveCurrentProjectAs():void {
         var project:ProjectVO = mainModel.currentProject;
         var f:File = new File();
+        if (mainModel.defaultProjectPath) {
+            f = f.resolvePath(mainModel.defaultProjectPath);
+        }
         f.addEventListener(Event.COMPLETE, onSaveAsComplete);
         f.addEventListener(Event.CANCEL, onSaveAsCancel);
         f.addEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
@@ -111,14 +134,23 @@ public class MainController {
     }
 
     private static function onSaveAsComplete(event:Event):void {
-        File(event.target).removeEventListener(Event.COMPLETE, onSaveAsComplete);
-        File(event.target).removeEventListener(Event.CANCEL, onSaveAsCancel);
-        File(event.target).removeEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
-        var newProjectName:String = File(event.target).name;
+        var f:File = File(event.target);
+        f.removeEventListener(Event.COMPLETE, onSaveAsComplete);
+        f.removeEventListener(Event.CANCEL, onSaveAsCancel);
+        f.removeEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
+        var newProjectName:String = f.name;
         newProjectName = newProjectName.substr(0, newProjectName.lastIndexOf('.'));
         mainModel.currentProject.name = newProjectName;
-        mainModel.currentProject.fileName = File(event.target).nativePath;
+        mainModel.currentProject.fileName = f.nativePath;
         mainModel.currentProject.isChangesSaved = true;
+        mainModel.defaultProjectPath = f.nativePath.substr(
+            0,
+            Math.max(
+                f.nativePath.lastIndexOf('/'),
+                f.nativePath.lastIndexOf('\\')
+            )
+        );
+        PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
         updateAppTitle();
     }
 
@@ -132,7 +164,7 @@ public class MainController {
         File(event.target).removeEventListener(Event.COMPLETE, onSaveAsComplete);
         File(event.target).removeEventListener(Event.CANCEL, onSaveAsCancel);
         File(event.target).removeEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
-        PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't save project!\nError: "+event.text);
+        PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't save project!\n" + event.text);
     }
 
     public static function closeCurrentProject():void {
