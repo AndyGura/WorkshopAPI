@@ -3,6 +3,7 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          creationComplete="onCreationComplete(event)"
+         resize="onResize(event)"
          styleName="editor">
 
     <fx:Script><![CDATA[
@@ -12,11 +13,13 @@
         import com.andrewgura.models.MainModel;
         import com.andrewgura.models.WorkshopConfig;
         import com.andrewgura.ui.components.Editor;
+        import com.andrewgura.ui.popup.PopupFactory;
 
         import mx.core.FlexGlobals;
 
         import mx.events.FlexEvent;
         import mx.events.MenuEvent;
+        import mx.events.ResizeEvent;
 
         import spark.components.Application;
         import spark.components.WindowedApplication;
@@ -49,6 +52,10 @@
         private function onMenuItemClick(event:MenuEvent):void {
             AppMenuController.doMenuItemAction(event.label);
         }
+
+        protected function onResize(event:ResizeEvent):void {
+            PopupFactory.instance.centerAllPopups();
+        }
         ]]>
   </fx:Script>
 
@@ -69,6 +76,9 @@
                     <menuitem label="{AppMenuConsts.CLOSE}" enabled="{mainModel.currentProject != null}"/>
                     <menuitem type="separator"/>
                     <menuitem label="{AppMenuConsts.EXIT}"/>
+                </menuitem>
+                <menuitem label="{AppMenuConsts.EDIT}">
+                    <menuitem label="{AppMenuConsts.PROJECT_SETTINGS}" enabled="{mainModel.currentProject != null}"/>
                 </menuitem>
             </root>
         </fx:XML>

@@ -10,6 +10,7 @@ public class AppMenuConsts {
     public static const EXIT:String = 'Exit';
 
     public static const EDIT:String = 'Edit';
+    public static const PROJECT_SETTINGS:String = 'Project Settings';
 
     public function AppMenuConsts() {
         throw new Error('AppMenuConsts is a static class and shouldn\'t be instantiated');

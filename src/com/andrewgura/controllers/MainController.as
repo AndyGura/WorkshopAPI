@@ -176,6 +176,20 @@ public class MainController {
         NativeApplication.nativeApplication.exit();
     }
 
+    public static function openProjectSettings():void {
+        if (!mainModel.config.settingsPanelClass) {
+            return;
+        }
+        PopupFactory.instance.showPopup(
+                AppPopups.PROJECT_SETTINGS_POPUP,
+                '', true,
+                {
+                    project: mainModel.currentProject,
+                    settingsPanelClass: mainModel.config.settingsPanelClass
+                }
+        );
+    }
+
     public function MainController() {
         throw new Error('MainController is a static class and shouldn\'t be instantiated');
     }

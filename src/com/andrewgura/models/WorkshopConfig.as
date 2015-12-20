@@ -7,6 +7,7 @@ public class WorkshopConfig {
 
     public var projectClass:Class;
     public var editorClass:Class;
+    public var settingsPanelClass:Class;
     public var appName:String;
     public var appVersion:String;
 

@@ -23,6 +23,9 @@ public class AppMenuController {
             case AppMenuConsts.EXIT:
                 MainController.exitEditor();
                 break;
+            case AppMenuConsts.PROJECT_SETTINGS:
+                MainController.openProjectSettings();
+                break;
         }
     }
 

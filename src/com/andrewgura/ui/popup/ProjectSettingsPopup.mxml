@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<popup:BasePopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                 xmlns:s="library://ns.adobe.com/flex/spark"
+                 xmlns:popup="com.andrewgura.ui.popup.*" xmlns:components="com.andrewgura.ui.components.*"
+                 width="100%" height="100%" addedToStage="onAddedToStage(event)">
+
+    <fx:Script>
+		<![CDATA[
+        import com.andrewgura.ui.components.SettingsPanel;
+
+        protected function onOkClick(e:MouseEvent):void {
+            if (okHandler != null) {
+                okHandler(e);
+            }
+            removePopup();
+        }
+
+        protected function onCancelClick(e:MouseEvent):void {
+            removePopup();
+        }
+
+        protected function onAddedToStage(event:Event):void {
+            var settingsPanelClass:Class = extData.settingsPanelClass;
+            var settingsPanel:SettingsPanel = new settingsPanelClass();
+            settingsPanel.project = extData.project;
+            popupContent.push(settingsPanel);
+        }
+        ]]>
+	</fx:Script>
+
+    <popup:buttonContent>
+        <s:Button height="30"
+                  label="Ок"
+                  click="onOkClick(event)"/>
+        <s:Button height="30"
+                  label="Cancel"
+                  click="onCancelClick(event)"/>
+    </popup:buttonContent>
+
+</popup:BasePopup>
