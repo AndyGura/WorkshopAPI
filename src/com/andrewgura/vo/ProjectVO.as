@@ -29,5 +29,22 @@ public class ProjectVO {
         _isChangesSaved = value;
         dispatchEvent(new Event("isChangesSavedChanged"));
     }
+
+    public function applySettingsChanges(changes:*):void {
+        var atLeastOnePropertyChanged:Boolean = false;
+        for (var key:String in changes) {
+            if (!this.hasOwnProperty(key)) {
+                continue;
+            }
+            var value:* = changes[key];
+            if (this[key] != value) {
+                this[key] = value;
+                atLeastOnePropertyChanged = true;
+            }
+        }
+        if (atLeastOnePropertyChanged) {
+            isChangesSaved = false;
+        }
+    }
 }
 }

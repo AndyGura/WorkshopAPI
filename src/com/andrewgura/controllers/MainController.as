@@ -186,8 +186,13 @@ public class MainController {
                 {
                     project: mainModel.currentProject,
                     settingsPanelClass: mainModel.config.settingsPanelClass
-                }
+                },
+                onProjectSettingsChange
         );
+
+        function onProjectSettingsChange(data:*):void {
+            mainModel.currentProject.applySettingsChanges(data);
+        }
     }
 
     public function MainController() {

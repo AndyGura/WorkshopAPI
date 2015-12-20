@@ -17,6 +17,11 @@
             _project = value;
             dispatchEvent(new Event("projectChanged"));
         }
+
+        public function getChangesObject():* {
+            return {};
+        }
+
         ]]>
   </fx:Script>
 
