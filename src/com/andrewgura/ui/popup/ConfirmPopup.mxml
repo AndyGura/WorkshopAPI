@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<popup:BasePopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                 xmlns:s="library://ns.adobe.com/flex/spark"
+                 xmlns:popup="com.andrewgura.ui.popup.*"
+                 width="320" minHeight="100">
+
+    <fx:Script>
+		<![CDATA[
+        protected function onOkClick(e:MouseEvent):void {
+            if (okHandler != null) {
+                okHandler(e);
+            }
+            removePopup();
+        }
+
+        protected function onCancelClick(e:MouseEvent):void {
+            if (cancelHandler != null) {
+                cancelHandler(e);
+            }
+            removePopup();
+        }
+        ]]>
+	</fx:Script>
+    <popup:popupContent>
+        <s:Label id="messageLabel"
+                 width="100%"
+                 text="{message}"/>
+    </popup:popupContent>
+
+    <popup:buttonContent>
+        <s:Button width="100%" height="30"
+                  label="Yes"
+                  click="onOkClick(event)"/>
+        <s:Button width="100%" height="30"
+                  label="No"
+                  click="onCancelClick(event)"/>
+    </popup:buttonContent>
+
+</popup:BasePopup>

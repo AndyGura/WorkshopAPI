@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<popup:BasePopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                 xmlns:s="library://ns.adobe.com/flex/spark"
+                 xmlns:popup="com.andrewgura.ui.popup.*"
+                 width="320" minHeight="100">
+
+    <fx:Script>
+		<![CDATA[
+        protected function onOkClick(e:MouseEvent):void {
+            if (okHandler != null) {
+                okHandler(e);
+            }
+            removePopup();
+        }
+        ]]>
+	</fx:Script>
+    <popup:popupContent>
+        <s:Label id="messageLabel"
+                 width="100%"
+                 text="{message}"/>
+    </popup:popupContent>
+
+    <popup:buttonContent>
+        <s:Button height="30"
+                  label="Ок"
+                  click="onOkClick(event)"/>
+    </popup:buttonContent>
+
+</popup:BasePopup>

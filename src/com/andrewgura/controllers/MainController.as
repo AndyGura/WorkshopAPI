@@ -1,5 +1,7 @@
 package com.andrewgura.controllers {
 import com.andrewgura.models.MainModel;
+import com.andrewgura.ui.popup.AppPopups;
+import com.andrewgura.ui.popup.PopupFactory;
 import com.andrewgura.vo.ProjectVO;
 
 import flash.desktop.NativeApplication;
@@ -103,16 +105,34 @@ public class MainController {
         var project:ProjectVO = mainModel.currentProject;
         var f:File = new File();
         f.addEventListener(Event.COMPLETE, onSaveAsComplete);
+        f.addEventListener(Event.CANCEL, onSaveAsCancel);
+        f.addEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
         f.save(project.serialize(), project.name + '.' + mainModel.config.projectFileExtension);
     }
 
     private static function onSaveAsComplete(event:Event):void {
+        File(event.target).removeEventListener(Event.COMPLETE, onSaveAsComplete);
+        File(event.target).removeEventListener(Event.CANCEL, onSaveAsCancel);
+        File(event.target).removeEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
         var newProjectName:String = File(event.target).name;
         newProjectName = newProjectName.substr(0, newProjectName.lastIndexOf('.'));
         mainModel.currentProject.name = newProjectName;
         mainModel.currentProject.fileName = File(event.target).nativePath;
         mainModel.currentProject.isChangesSaved = true;
         updateAppTitle();
+    }
+
+    private static function onSaveAsCancel(event:Event):void {
+        File(event.target).removeEventListener(Event.COMPLETE, onSaveAsComplete);
+        File(event.target).removeEventListener(Event.CANCEL, onSaveAsCancel);
+        File(event.target).removeEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
+    }
+
+    private static function onSaveIOError(event:IOErrorEvent):void {
+        File(event.target).removeEventListener(Event.COMPLETE, onSaveAsComplete);
+        File(event.target).removeEventListener(Event.CANCEL, onSaveAsCancel);
+        File(event.target).removeEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
+        PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't save project!\nError: "+event.text);
     }
 
     public static function closeCurrentProject():void {
