@@ -17,6 +17,10 @@
             removePopup();
         }
 
+        protected function onCloseClick(e:MouseEvent):void {
+            removePopup();
+        }
+
         protected function onCancelClick(e:MouseEvent):void {
             removePopup();
         }
@@ -29,6 +33,11 @@
         }
         ]]>
 	</fx:Script>
+
+    <popup:titleContent>
+        <s:Label text="Project Settings" width="100%" textAlign="center"/>
+        <s:Button styleName="breezeCloseButton" click="onCloseClick(event)"/>
+    </popup:titleContent>
 
     <popup:buttonContent>
         <s:Button height="30"

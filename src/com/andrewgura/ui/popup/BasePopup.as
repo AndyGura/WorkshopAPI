@@ -15,8 +15,24 @@ public class BasePopup extends SkinnablePopUpContainer {
     [SkinPart(required="false")]
     public var buttonsGroup:Group;
 
+    [SkinPart(required="false")]
+    public  var titleGroup:Group;
+
+    private var _titleContent:Array = [];
     private var _popupContent:Array = [];
     private var _buttonContent:Array = [];
+
+    [ArrayElementType("mx.core.IVisualElement")]
+    public function get titleContent():Array {
+        return _titleContent;
+    }
+
+    public function set titleContent(value:Array):void {
+        _titleContent = value;
+        if (titleGroup) {
+            titleGroup.mxmlContent = value;
+        }
+    }
 
     [ArrayElementType("mx.core.IVisualElement")]
     public function get popupContent():Array {
@@ -52,6 +68,8 @@ public class BasePopup extends SkinnablePopUpContainer {
             VGroup(contentGroup).paddingTop = 40;
         } else if (instance == buttonsGroup) {
             buttonsGroup.mxmlContent = buttonContent;
+        } else if (instance == titleGroup) {
+            titleGroup.mxmlContent = titleContent;
         }
     }
 
@@ -61,6 +79,8 @@ public class BasePopup extends SkinnablePopUpContainer {
             contentGroup.mxmlContent = null;
         } else if (instance == buttonsGroup) {
             buttonsGroup.mxmlContent = null;
+        } else if (instance == titleGroup) {
+            titleGroup.mxmlContent = null;
         }
     }
 
