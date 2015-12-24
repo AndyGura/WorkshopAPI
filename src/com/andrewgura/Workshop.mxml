@@ -90,6 +90,10 @@
                     styleName="breezeMenuBar" menuStyleName="breezeMenu"
                     itemClick="onMenuItemClick(event)"/>
 
+        <s:TabBar dataProvider="{mainModel.openedProjects}" labelField="name"
+                  selectedIndex="@{mainModel.currentProjectIndex}"
+                  visible="{mainModel.openedProjects.length>1}" includeInLayout="{mainModel.openedProjects.length>1}"/>
+
         <s:Group id="editorHolder"
                  width="100%" height="100%"/>
 

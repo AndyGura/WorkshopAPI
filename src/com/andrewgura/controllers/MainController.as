@@ -21,6 +21,12 @@ public class MainController {
         mainModel = model;
         mainModel.defaultProjectPath = PersistanceController.getEncryptedResource(SharedObjectConsts.DEFAULT_PATH);
         updateAppTitle();
+        mainModel.addEventListener(
+                "currentProjectChange",
+                function handle(e:Event):void {
+                    updateAppTitle();
+                }
+        );
     }
 
     public static function updateAppTitle():void {
@@ -168,8 +174,15 @@ public class MainController {
     }
 
     public static function closeCurrentProject():void {
-        mainModel.currentProject = null;
-        updateAppTitle();
+        if (!mainModel.currentProject.isChangesSaved) {
+            PopupFactory.instance.showPopup(AppPopups.CONFIRM_POPUP, "All unsaved data will be lost! Are you sure?", true, null, onProceed);
+        } else {
+            onProceed();
+        }
+        function onProceed(...args):void {
+            mainModel.currentProject = null;
+            updateAppTitle();
+        }
     }
 
     public static function exitEditor():void {

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <popup:BasePopup xmlns:fx="http://ns.adobe.com/mxml/2009"
                  xmlns:s="library://ns.adobe.com/flex/spark"
-                 xmlns:popup="com.andrewgura.ui.popup.*"
-                 width="320" minHeight="100">
+                 xmlns:popup="com.andrewgura.ui.popup.*">
 
     <fx:Script>
 		<![CDATA[
@@ -19,11 +18,22 @@
             }
             removePopup();
         }
+
+        protected function onCloseClick(e:MouseEvent):void {
+            onCancelClick(e);
+        }
+
         ]]>
 	</fx:Script>
+
+    <popup:titleContent>
+        <s:Label text="Please confirm an action" width="100%" textAlign="center"/>
+        <s:Button styleName="breezeCloseButton" click="onCloseClick(event)"/>
+    </popup:titleContent>
+
     <popup:popupContent>
         <s:Label id="messageLabel"
-                 width="100%"
+                 left="10" right="10"
                  text="{message}"/>
     </popup:popupContent>
 
