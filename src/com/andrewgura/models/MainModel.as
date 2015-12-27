@@ -38,6 +38,7 @@ public class MainModel {
         currentProjectIndex = openedProjects.getItemIndex(value);
     }
 
+    [Bindable(event="openedProjectsChanged")]
     public function get openedProjects():ArrayCollection {
         return _openedProjects;
     }
@@ -59,6 +60,7 @@ public class MainModel {
     }
 
     private function onCollectionChange(event:CollectionEvent):void {
+        dispatchEvent(new Event("openedProjectsChanged"));
         dispatchEvent(new Event("currentProjectChange"));
     }
 
