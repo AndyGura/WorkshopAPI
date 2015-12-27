@@ -68,15 +68,21 @@ public class MainController {
         function onFileSelected(event:Event):void {
             f.removeEventListener(Event.SELECT, onFileSelected);
             f.removeEventListener(Event.CANCEL, onFileSelectionCancelled);
-            f.addEventListener(Event.COMPLETE, onFileLoaded);
-            f.addEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
-            f.load();
+            openFileByName(f.nativePath);
         }
 
         function onFileSelectionCancelled(event:Event):void {
             f.removeEventListener(Event.SELECT, onFileSelected);
             f.removeEventListener(Event.CANCEL, onFileSelectionCancelled);
         }
+
+    }
+
+    public static function openFileByName(fileName:String):void {
+        var f:File = File.applicationDirectory.resolvePath(fileName);
+        f.addEventListener(Event.COMPLETE, onFileLoaded);
+        f.addEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
+        f.load();
 
         function onFileLoaded(event:Event):void {
             f.removeEventListener(Event.COMPLETE, onFileLoaded);
@@ -107,6 +113,7 @@ public class MainController {
             f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't load project!\n" + event.text);
         }
+
     }
 
     public static function saveCurrentProject():void {

@@ -44,9 +44,14 @@
             editorHolder.addElement(editor);
             MainController.initApplication(mainModel);
             FlexGlobals.topLevelApplication.showStatusBar = false;
-            var styleClient:AdvancedStyleClient = new AdvancedStyleClient();
-//            styleClient.
-//            WindowedApplication(FlexGlobals.topLevelApplication).styleManager.//addStyleClient(styleClient);
+            FlexGlobals.topLevelApplication.addEventListener(InvokeEvent.INVOKE, onAppInvoke);
+        }
+
+        private function onAppInvoke(event:InvokeEvent):void {
+            if (event.arguments.length>0) {
+                var fileName:String=event.arguments[0];
+                MainController.openFileByName(fileName);
+            }
         }
 
         private function onMenuItemClick(event:MenuEvent):void {
