@@ -1,4 +1,6 @@
 package com.andrewgura.models {
+import com.andrewgura.vo.FileTypeVO;
+
 import flash.desktop.NativeApplication;
 import flash.net.FileFilter;
 
@@ -11,11 +13,10 @@ public class WorkshopConfig {
     public var appName:String;
     public var appVersion:String;
 
-    public var projectFileExtension:String;
-    public var projectFileTypeDescription:String;
+    public var projectFileType:FileTypeVO;
 
     public function get projectFileFilter():FileFilter {
-        return new FileFilter(projectFileTypeDescription, "*." + projectFileExtension);
+        return new FileFilter(projectFileType.description, "*." + projectFileType.extension);
     }
 
     public function WorkshopConfig() {

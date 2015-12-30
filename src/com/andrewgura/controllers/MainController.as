@@ -88,7 +88,7 @@ public class MainController {
             f.removeEventListener(Event.COMPLETE, onFileLoaded);
             f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             var data:ByteArray = f.data;
-            var name:String = f.name.substr(0, f.name.length - mainModel.config.projectFileExtension.length - 1);
+            var name:String = f.name.substr(0, f.name.length - mainModel.config.projectFileType.extension.length - 1);
             mainModel.currentProject = new mainModel.config.projectClass();
             mainModel.currentProject.deserialize(name, f.nativePath, data);
             updateAppTitle();
@@ -143,7 +143,7 @@ public class MainController {
         f.addEventListener(Event.COMPLETE, onSaveAsComplete);
         f.addEventListener(Event.CANCEL, onSaveAsCancel);
         f.addEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
-        f.save(project.serialize(), project.name + '.' + mainModel.config.projectFileExtension);
+        f.save(project.serialize(), project.name + '.' + mainModel.config.projectFileType.extension);
     }
 
     private static function onSaveAsComplete(event:Event):void {

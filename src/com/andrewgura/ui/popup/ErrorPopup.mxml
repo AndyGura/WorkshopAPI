@@ -12,13 +12,6 @@
             }
             removePopup();
         }
-
-        protected function onCancelClick(e:MouseEvent):void {
-            if (cancelHandler != null) {
-                cancelHandler(e);
-            }
-            removePopup();
-        }
         ]]>
 	</fx:Script>
     <popup:popupContent>
@@ -28,12 +21,9 @@
     </popup:popupContent>
 
     <popup:buttonContent>
-        <s:Button width="100%" height="30"
-                  label="Retry"
+        <s:Button height="30"
+                  label="Ok"
                   click="onOkClick(event)"/>
-        <s:Button width="100%" height="30"
-                  label="Cancel"
-                  click="onCancelClick(event)"/>
     </popup:buttonContent>
 
 </popup:BasePopup>
