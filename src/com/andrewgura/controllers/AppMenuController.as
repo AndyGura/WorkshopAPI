@@ -3,8 +3,13 @@ import com.andrewgura.consts.AppMenuConsts;
 
 public class AppMenuController {
 
-    public static function doMenuItemAction(item:String):void {
-        switch (item) {
+    public static function doMenuItemAction(item:*):void {
+        var label:String = item.label;
+        if (item.type == "recentFile") {
+            MainController.openFileByName(item.fullFileName);
+            return;
+        }
+        switch (label) {
             case AppMenuConsts.NEW:
                 MainController.createNewFile();
                 break;

@@ -1,5 +1,9 @@
 package com.andrewgura.controllers {
 import flash.data.EncryptedLocalStore;
+import flash.filesystem.File;
+import flash.filesystem.FileMode;
+import flash.filesystem.FileStream;
+import flash.net.SharedObject;
 import flash.utils.ByteArray;
 
 public class PersistanceController {
@@ -23,6 +27,26 @@ public class PersistanceController {
         var ba:ByteArray = new ByteArray();
         ba.writeObject(data);
         EncryptedLocalStore.setItem(name, ba);
+    }
+
+    public static function getResource(name:String):* {
+        var file:File = File.applicationStorageDirectory.resolvePath(name);
+        if (!file.exists) {
+            return null;
+        }
+        var fileStream:FileStream = new FileStream();
+        fileStream.open(file, FileMode.READ);
+        var o:* = fileStream.readObject();
+        fileStream.close();
+        return o;
+    }
+
+    public static function setResource(name:String, data:*):void {
+        var file:File = File.applicationStorageDirectory.resolvePath(name);
+        var fileStream:FileStream = new FileStream();
+        fileStream.open(file, FileMode.WRITE);
+        fileStream.writeObject(data);
+        fileStream.close();
     }
 
 }

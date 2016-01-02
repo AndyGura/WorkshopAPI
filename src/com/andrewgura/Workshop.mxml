@@ -55,7 +55,7 @@
         }
 
         private function onMenuItemClick(event:MenuEvent):void {
-            AppMenuController.doMenuItemAction(event.label);
+            AppMenuController.doMenuItemAction(event.item);
         }
 
         protected function onResize(event:ResizeEvent):void {
@@ -68,30 +68,9 @@
     <fx:Binding source="editorHolder.width-10" destination="editor.width"/>
     <fx:Binding source="editorHolder.height-10" destination="editor.height"/>
 
-    <fx:Declarations>
-        <fx:XML format="e4x" id="menuData">
-            <root>
-                <menuitem label="{AppMenuConsts.FILE}">
-                    <menuitem label="{AppMenuConsts.NEW}"/>
-                    <menuitem label="{AppMenuConsts.OPEN}"/>
-                    <menuitem label="{AppMenuConsts.SAVE}"
-                              enabled="{mainModel.currentProject != null &amp;&amp; !mainModel.currentProject.isChangesSaved}"/>
-                    <menuitem label="{AppMenuConsts.SAVE_AS}"
-                              enabled="{mainModel.currentProject != null}"/>
-                    <menuitem label="{AppMenuConsts.CLOSE}" enabled="{mainModel.currentProject != null}"/>
-                    <menuitem type="separator"/>
-                    <menuitem label="{AppMenuConsts.EXIT}"/>
-                </menuitem>
-                <menuitem label="{AppMenuConsts.EDIT}">
-                    <menuitem label="{AppMenuConsts.PROJECT_SETTINGS}" enabled="{mainModel.currentProject != null}"/>
-                </menuitem>
-            </root>
-        </fx:XML>
-    </fx:Declarations>
-
     <s:VGroup width="100%" height="100%" gap="0">
         <mx:MenuBar id="menuBar" width="100%" height="24" top="0"
-                    dataProvider="{menuData}" showRoot="false" labelField="@label"
+                    dataProvider="{mainModel.menuDataProvider}" showRoot="false" labelField="label"
                     styleName="breezeMenuBar" menuStyleName="breezeMenu"
                     itemClick="onMenuItemClick(event)"/>
 

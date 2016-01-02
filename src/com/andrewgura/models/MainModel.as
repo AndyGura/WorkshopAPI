@@ -9,10 +9,12 @@ import mx.events.CollectionEvent;
 [Bindable]
 public class MainModel {
 
+    public var menuDataProvider:Array;
 
     public var config:WorkshopConfig;
     public var defaultProjectPath:String;
 
+    public var recentProjectFileNames:ArrayCollection;
 
     private var _currentProjectIndex:Number;
     private var _openedProjects:ArrayCollection = new ArrayCollection();

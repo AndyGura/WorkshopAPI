@@ -1,4 +1,5 @@
 package com.andrewgura.controllers {
+import com.andrewgura.consts.AppMenuConsts;
 import com.andrewgura.consts.SharedObjectConsts;
 import com.andrewgura.models.MainModel;
 import com.andrewgura.ui.popup.AppPopups;
@@ -13,6 +14,8 @@ import flash.filesystem.FileMode;
 import flash.filesystem.FileStream;
 import flash.utils.ByteArray;
 
+import mx.collections.ArrayCollection;
+
 public class MainController {
 
     private static var mainModel:MainModel;
@@ -20,13 +23,17 @@ public class MainController {
     public static function initApplication(model:MainModel):void {
         mainModel = model;
         mainModel.defaultProjectPath = PersistanceController.getEncryptedResource(SharedObjectConsts.DEFAULT_PATH);
+        mainModel.recentProjectFileNames = new ArrayCollection(PersistanceController.getResource(SharedObjectConsts.RECENT_PROJECTS));
         updateAppTitle();
+        updateMainMenu();
         mainModel.addEventListener(
                 "currentProjectChange",
                 function handle(e:Event):void {
                     updateAppTitle();
+                    updateMainMenu();
                 }
         );
+        updateMainMenu();
     }
 
     public static function updateAppTitle():void {
@@ -48,10 +55,12 @@ public class MainController {
     public static function createNewFile():void {
         mainModel.currentProject = new mainModel.config.projectClass();
         updateAppTitle();
+        updateMainMenu();
         mainModel.currentProject.addEventListener(
                 "isChangesSavedChanged",
                 function handle(e:Event):void {
                     updateAppTitle();
+                    updateMainMenu();
                 }
         );
     }
@@ -79,6 +88,15 @@ public class MainController {
     }
 
     public static function openFileByName(fileName:String):void {
+        for each (var project:ProjectVO in mainModel.openedProjects) {
+            if (project.fileName == fileName) {
+                mainModel.currentProject = project;
+                PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+                addProjectToRecent(mainModel.currentProject.fileName);
+                return;
+            }
+        }
+
         var f:File = File.applicationDirectory.resolvePath(fileName);
         f.addEventListener(Event.COMPLETE, onFileLoaded);
         f.addEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
@@ -92,10 +110,12 @@ public class MainController {
             mainModel.currentProject = new mainModel.config.projectClass();
             mainModel.currentProject.deserialize(name, f.nativePath, data);
             updateAppTitle();
+            updateMainMenu();
             mainModel.currentProject.addEventListener(
                     "isChangesSavedChanged",
                     function handle(e:Event):void {
                         updateAppTitle();
+                        updateMainMenu();
                     }
             );
             mainModel.defaultProjectPath = f.nativePath.substr(
@@ -106,6 +126,7 @@ public class MainController {
                     )
             );
             PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+            addProjectToRecent(mainModel.currentProject.fileName);
         }
 
         function onFileLoadError(event:IOErrorEvent):void {
@@ -132,6 +153,7 @@ public class MainController {
         fs.close();
         project.isChangesSaved = true;
         updateAppTitle();
+        updateMainMenu();
     }
 
     public static function saveCurrentProjectAs():void {
@@ -157,13 +179,14 @@ public class MainController {
         mainModel.currentProject.fileName = f.nativePath;
         mainModel.currentProject.isChangesSaved = true;
         mainModel.defaultProjectPath = f.nativePath.substr(
-            0,
-            Math.max(
-                f.nativePath.lastIndexOf('/'),
-                f.nativePath.lastIndexOf('\\')
-            )
+                0,
+                Math.max(
+                        f.nativePath.lastIndexOf('/'),
+                        f.nativePath.lastIndexOf('\\')
+                )
         );
         PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+        addProjectToRecent(mainModel.currentProject.fileName);
         updateAppTitle();
     }
 
@@ -189,6 +212,7 @@ public class MainController {
         function onProceed(...args):void {
             mainModel.currentProject = null;
             updateAppTitle();
+            updateMainMenu();
         }
     }
 
@@ -213,6 +237,57 @@ public class MainController {
         function onProjectSettingsChange(data:*):void {
             mainModel.currentProject.applySettingsChanges(data);
         }
+    }
+
+    private static function addProjectToRecent(fileName:String):void {
+        if (!mainModel.recentProjectFileNames) {
+            mainModel.recentProjectFileNames = new ArrayCollection();
+        }
+        if (mainModel.recentProjectFileNames.getItemIndex(fileName)>=0) {
+            mainModel.recentProjectFileNames.removeItemAt(mainModel.recentProjectFileNames.getItemIndex(fileName));
+        }
+        mainModel.recentProjectFileNames.addItemAt(fileName, 0);
+        while (mainModel.recentProjectFileNames.length > 5) {
+            mainModel.recentProjectFileNames.removeItemAt(mainModel.recentProjectFileNames.length - 1);
+        }
+        PersistanceController.setResource(SharedObjectConsts.RECENT_PROJECTS, mainModel.recentProjectFileNames.source);
+        updateMainMenu();
+    }
+
+    private static function updateMainMenu():void {
+        var data:Array = [
+            {
+                label: AppMenuConsts.FILE, children: [
+                {label: AppMenuConsts.NEW},
+                {label: AppMenuConsts.OPEN},
+                {
+                    label: AppMenuConsts.SAVE,
+                    enabled: (mainModel.currentProject != null && !mainModel.currentProject.isChangesSaved)
+                },
+                {label: AppMenuConsts.SAVE_AS, enabled: mainModel.currentProject != null},
+                {label: AppMenuConsts.CLOSE, enabled: mainModel.currentProject != null},
+                {type: "separator"},
+                {label: AppMenuConsts.EXIT}
+            ]
+            },
+            {
+                label: AppMenuConsts.EDIT, children: [
+                {label: AppMenuConsts.PROJECT_SETTINGS, enabled: mainModel.currentProject != null}
+            ]
+            }
+        ];
+
+        if (mainModel.recentProjectFileNames && mainModel.recentProjectFileNames.length > 0) {
+
+            var a:Array = data[0].children;
+            var lastElement:* = a.pop();
+            for each (var recentFileName:String in mainModel.recentProjectFileNames) {
+                a.push({label: recentFileName.substring(Math.max(recentFileName.lastIndexOf('/'), recentFileName.lastIndexOf('\\')) + 1, recentFileName.length - 4), type: "recentFile", fullFileName: recentFileName});
+            }
+            a.push({type: "separator"});
+            a.push(lastElement);
+        }
+        mainModel.menuDataProvider = data;
     }
 
     public function MainController() {
