@@ -7,22 +7,17 @@
          styleName="editor">
 
     <fx:Script><![CDATA[
-        import com.andrewgura.consts.AppMenuConsts;
-        import com.andrewgura.controllers.AppMenuController;
         import com.andrewgura.controllers.MainController;
+        import com.andrewgura.controllers.ShortcutsController;
         import com.andrewgura.models.MainModel;
         import com.andrewgura.models.WorkshopConfig;
         import com.andrewgura.ui.components.Editor;
         import com.andrewgura.ui.popup.PopupFactory;
 
         import mx.core.FlexGlobals;
-
         import mx.events.FlexEvent;
         import mx.events.MenuEvent;
         import mx.events.ResizeEvent;
-
-        import spark.components.Application;
-        import spark.components.WindowedApplication;
 
         [Bindable]
         private var mainModel:MainModel = new MainModel();
@@ -45,17 +40,27 @@
             MainController.initApplication(mainModel);
             FlexGlobals.topLevelApplication.showStatusBar = false;
             FlexGlobals.topLevelApplication.addEventListener(InvokeEvent.INVOKE, onAppInvoke);
+            FlexGlobals.topLevelApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         }
 
         private function onAppInvoke(event:InvokeEvent):void {
-            if (event.arguments.length>0) {
-                var fileName:String=event.arguments[0];
+            if (event.arguments.length > 0) {
+                var fileName:String = event.arguments[0];
                 MainController.openFileByName(fileName);
             }
         }
 
+        private function onKeyDown(event:KeyboardEvent):void {
+            if (event.ctrlKey) {
+                if (event.keyCode == Keyboard.CONTROL) {
+                    return;
+                }
+                ShortcutsController.doCtrlShortcutAction(event.keyCode);
+            }
+        }
+
         private function onMenuItemClick(event:MenuEvent):void {
-            AppMenuController.doMenuItemAction(event.item);
+            ShortcutsController.doMenuItemAction(event.item);
         }
 
         protected function onResize(event:ResizeEvent):void {
