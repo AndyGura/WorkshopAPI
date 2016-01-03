@@ -10,9 +10,9 @@
         import com.andrewgura.controllers.MainController;
         import com.andrewgura.controllers.ShortcutsController;
         import com.andrewgura.models.MainModel;
-        import com.andrewgura.models.WorkshopConfig;
         import com.andrewgura.ui.components.Editor;
         import com.andrewgura.ui.popup.PopupFactory;
+        import com.andrewgura.vo.WorkshopConfigVO;
 
         import mx.core.FlexGlobals;
         import mx.events.FlexEvent;
@@ -23,7 +23,7 @@
         private var mainModel:MainModel = new MainModel();
 
         [Bindable]
-        public var config:WorkshopConfig;
+        public var config:WorkshopConfigVO;
 
         [Bindable]
         public var editor:Editor;

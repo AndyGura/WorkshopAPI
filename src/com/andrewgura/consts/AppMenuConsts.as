@@ -4,6 +4,7 @@ public class AppMenuConsts {
     public static const FILE:String = 'File';
     public static const NEW:String = 'New';
     public static const OPEN:String = 'Open';
+    public static const IMPORT:String = 'Import';
     public static const SAVE:String = 'Save';
     public static const SAVE_AS:String = 'Save as';
     public static const CLOSE:String = 'Close';

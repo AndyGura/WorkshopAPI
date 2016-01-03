@@ -2,14 +2,13 @@ package com.andrewgura.controllers {
 import com.andrewgura.consts.AppMenuConsts;
 
 import flash.ui.Keyboard;
-
 import flash.utils.Dictionary;
 
 public class ShortcutsController {
 
     private static var MENU_ACTIONS_MAP:Dictionary;
     private static var CTRL_KEY_ACTIONS_MAP:Dictionary;
-    
+
     private static function prepareMenuActionsMap():void {
         MENU_ACTIONS_MAP = new Dictionary();
         MENU_ACTIONS_MAP[AppMenuConsts.NEW] = MainController.createNewFile;
@@ -34,6 +33,9 @@ public class ShortcutsController {
         if (item.type == "recentFile") {
             MainController.openFileByName(item.fullFileName);
             return;
+        }
+        if (item.type == "importEntry") {
+            MainController.importFiles(item.importTypeVO);
         }
         if (!MENU_ACTIONS_MAP) {
             prepareMenuActionsMap();

@@ -1,5 +1,6 @@
 package com.andrewgura.models {
 import com.andrewgura.vo.ProjectVO;
+import com.andrewgura.vo.WorkshopConfigVO;
 
 import flash.events.Event;
 
@@ -11,7 +12,7 @@ public class MainModel {
 
     public var menuDataProvider:Array;
 
-    public var config:WorkshopConfig;
+    public var config:WorkshopConfigVO;
     public var defaultProjectPath:String;
 
     public var recentProjectFileNames:ArrayCollection;
@@ -21,7 +22,7 @@ public class MainModel {
 
     [Bindable(event="currentProjectChange")]
     public function get currentProject():ProjectVO {
-        if (isNaN(_currentProjectIndex) || _currentProjectIndex<0 || _currentProjectIndex>=_openedProjects.length) {
+        if (isNaN(_currentProjectIndex) || _currentProjectIndex < 0 || _currentProjectIndex >= _openedProjects.length) {
             return null;
         } else {
             return ProjectVO(_openedProjects.getItemAt(_currentProjectIndex));
@@ -31,10 +32,10 @@ public class MainModel {
     public function set currentProject(value:ProjectVO):void {
         if (!value && currentProject) {
             openedProjects.removeItemAt(currentProjectIndex);
-            currentProjectIndex = Math.min(Math.max(currentProjectIndex, 0), openedProjects.length-1);
+            currentProjectIndex = Math.min(Math.max(currentProjectIndex, 0), openedProjects.length - 1);
             return;
         }
-        if (openedProjects.getItemIndex(value)==-1) {
+        if (openedProjects.getItemIndex(value) == -1) {
             openedProjects.addItem(value);
         }
         currentProjectIndex = openedProjects.getItemIndex(value);

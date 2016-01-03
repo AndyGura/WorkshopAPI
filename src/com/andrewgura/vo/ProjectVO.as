@@ -19,6 +19,9 @@ public class ProjectVO {
         this.fileName = fileName;
     }
 
+    public function importFiles(fileReferences:Array):void {
+    }
+
     [Bindable(event="isChangesSavedChanged")]
     public function get isChangesSaved():Boolean {
         return _isChangesSaved;

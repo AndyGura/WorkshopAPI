@@ -4,10 +4,12 @@ import com.andrewgura.consts.SharedObjectConsts;
 import com.andrewgura.models.MainModel;
 import com.andrewgura.ui.popup.AppPopups;
 import com.andrewgura.ui.popup.PopupFactory;
+import com.andrewgura.vo.FileTypeVO;
 import com.andrewgura.vo.ProjectVO;
 
 import flash.desktop.NativeApplication;
 import flash.events.Event;
+import flash.events.FileListEvent;
 import flash.events.IOErrorEvent;
 import flash.filesystem.File;
 import flash.filesystem.FileMode;
@@ -72,7 +74,7 @@ public class MainController {
         }
         f.addEventListener(Event.SELECT, onFileSelected);
         f.addEventListener(Event.CANCEL, onFileSelectionCancelled);
-        f.browse([mainModel.config.projectFileFilter]);
+        f.browse([mainModel.config.projectFileType.fileFilter]);
 
         function onFileSelected(event:Event):void {
             f.removeEventListener(Event.SELECT, onFileSelected);
@@ -85,6 +87,34 @@ public class MainController {
             f.removeEventListener(Event.CANCEL, onFileSelectionCancelled);
         }
 
+    }
+
+    public static function importFiles(fileType:FileTypeVO = null):void {
+        if (!fileType) {
+            fileType = mainModel.config.allSupportedImportTypes;
+        }
+        var f:File = new File();
+        f.addEventListener(FileListEvent.SELECT_MULTIPLE, onFilesSelected);
+        f.addEventListener(Event.CANCEL, onFilesSelectionCanceled);
+        f.browseForOpenMultiple('Select files to import', [fileType.fileFilter]);
+
+        function onFilesSelected(event:FileListEvent):void {
+            f.removeEventListener(FileListEvent.SELECT_MULTIPLE, onFilesSelected);
+            f.removeEventListener(Event.CANCEL, onFilesSelectionCanceled);
+            importSelectedFiles(event.files);
+        }
+
+        function onFilesSelectionCanceled(event:Event):void {
+            f.removeEventListener(FileListEvent.SELECT_MULTIPLE, onFilesSelected);
+            f.removeEventListener(Event.CANCEL, onFilesSelectionCanceled);
+        }
+    }
+
+    public static function importSelectedFiles(fileList:Array):void {
+        if (!mainModel.currentProject) {
+            MainController.createNewFile();
+        }
+        mainModel.currentProject.importFiles(fileList);
     }
 
     public static function openFileByName(fileName:String):void {
@@ -106,7 +136,7 @@ public class MainController {
             f.removeEventListener(Event.COMPLETE, onFileLoaded);
             f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             var data:ByteArray = f.data;
-            var name:String = f.name.substr(0, f.name.length - mainModel.config.projectFileType.extension.length - 1);
+            var name:String = f.name.substr(0, f.name.lastIndexOf('.'));
             mainModel.currentProject = new mainModel.config.projectClass();
             mainModel.currentProject.deserialize(name, f.nativePath, data);
             updateAppTitle();
@@ -165,7 +195,7 @@ public class MainController {
         f.addEventListener(Event.COMPLETE, onSaveAsComplete);
         f.addEventListener(Event.CANCEL, onSaveAsCancel);
         f.addEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
-        f.save(project.serialize(), project.name + '.' + mainModel.config.projectFileType.extension);
+        f.save(project.serialize(), project.name + '.' + mainModel.config.projectFileType.extensions[0]);
     }
 
     private static function onSaveAsComplete(event:Event):void {
@@ -217,7 +247,21 @@ public class MainController {
     }
 
     public static function exitEditor():void {
-        NativeApplication.nativeApplication.exit();
+        var isAllChangesSaved:Boolean = true;
+        for each (var project:ProjectVO in mainModel.openedProjects) {
+            if (!project.isChangesSaved) {
+                isAllChangesSaved = false;
+                break;
+            }
+        }
+        if (!isAllChangesSaved) {
+            PopupFactory.instance.showPopup(AppPopups.CONFIRM_POPUP, "You have unsaved changes in some of opened projects, all unsaved data will be lost! Are you sure?", true, null, onProceed);
+        } else {
+            onProceed();
+        }
+        function onProceed(...args):void {
+            NativeApplication.nativeApplication.exit();
+        }
     }
 
     public static function openProjectSettings():void {
@@ -243,7 +287,7 @@ public class MainController {
         if (!mainModel.recentProjectFileNames) {
             mainModel.recentProjectFileNames = new ArrayCollection();
         }
-        if (mainModel.recentProjectFileNames.getItemIndex(fileName)>=0) {
+        if (mainModel.recentProjectFileNames.getItemIndex(fileName) >= 0) {
             mainModel.recentProjectFileNames.removeItemAt(mainModel.recentProjectFileNames.getItemIndex(fileName));
         }
         mainModel.recentProjectFileNames.addItemAt(fileName, 0);
@@ -255,38 +299,47 @@ public class MainController {
     }
 
     private static function updateMainMenu():void {
-        var data:Array = [
-            {
-                label: AppMenuConsts.FILE, children: [
-                {label: AppMenuConsts.NEW},
-                {label: AppMenuConsts.OPEN},
-                {
-                    label: AppMenuConsts.SAVE,
-                    enabled: (mainModel.currentProject != null && !mainModel.currentProject.isChangesSaved)
-                },
-                {label: AppMenuConsts.SAVE_AS, enabled: mainModel.currentProject != null},
-                {label: AppMenuConsts.CLOSE, enabled: mainModel.currentProject != null},
-                {type: "separator"},
-                {label: AppMenuConsts.EXIT}
-            ]
-            },
-            {
-                label: AppMenuConsts.EDIT, children: [
-                {label: AppMenuConsts.PROJECT_SETTINGS, enabled: mainModel.currentProject != null}
-            ]
+
+        var fileEntries:Array = [
+            {label: AppMenuConsts.NEW},
+            {label: AppMenuConsts.OPEN}];
+        if (mainModel.config.importTypes && mainModel.config.importTypes.length > 0) {
+            var importEntries:Array = [];
+            for each (var importTypeVO:FileTypeVO in mainModel.config.importTypes) {
+                importEntries.push({label: importTypeVO.description, type: "importEntry", importTypeVO: importTypeVO});
             }
+            fileEntries.push({label: AppMenuConsts.IMPORT, children: importEntries});
+        }
+        fileEntries = fileEntries.concat([
+            {
+                label: AppMenuConsts.SAVE,
+                enabled: (mainModel.currentProject != null && !mainModel.currentProject.isChangesSaved)
+            },
+            {label: AppMenuConsts.SAVE_AS, enabled: mainModel.currentProject != null},
+            {label: AppMenuConsts.CLOSE, enabled: mainModel.currentProject != null},
+            {type: "separator"}
+        ]);
+        if (mainModel.recentProjectFileNames && mainModel.recentProjectFileNames.length > 0) {
+            for each (var recentFileName:String in mainModel.recentProjectFileNames) {
+                fileEntries.push({
+                    label: recentFileName.substring(Math.max(recentFileName.lastIndexOf('/'), recentFileName.lastIndexOf('\\')) + 1, recentFileName.length - 4),
+                    type: "recentFile",
+                    fullFileName: recentFileName
+                });
+            }
+            fileEntries.push({type: "separator"});
+        }
+        fileEntries.push({label: AppMenuConsts.EXIT});
+
+        var editEntries:Array = [
+            {label: AppMenuConsts.PROJECT_SETTINGS, enabled: mainModel.currentProject != null}
         ];
 
-        if (mainModel.recentProjectFileNames && mainModel.recentProjectFileNames.length > 0) {
+        var data:Array = [
+            {label: AppMenuConsts.FILE, children: fileEntries},
+            {label: AppMenuConsts.EDIT, children: editEntries}
+        ];
 
-            var a:Array = data[0].children;
-            var lastElement:* = a.pop();
-            for each (var recentFileName:String in mainModel.recentProjectFileNames) {
-                a.push({label: recentFileName.substring(Math.max(recentFileName.lastIndexOf('/'), recentFileName.lastIndexOf('\\')) + 1, recentFileName.length - 4), type: "recentFile", fullFileName: recentFileName});
-            }
-            a.push({type: "separator"});
-            a.push(lastElement);
-        }
         mainModel.menuDataProvider = data;
     }
 
