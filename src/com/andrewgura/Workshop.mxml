@@ -19,6 +19,8 @@
         import mx.events.MenuEvent;
         import mx.events.ResizeEvent;
 
+        import spark.components.WindowedApplication;
+
         [Bindable]
         private var mainModel:MainModel = new MainModel();
 
@@ -38,9 +40,19 @@
             editor.y = 5;
             editorHolder.addElement(editor);
             MainController.initApplication(mainModel);
-            FlexGlobals.topLevelApplication.showStatusBar = false;
-            FlexGlobals.topLevelApplication.addEventListener(InvokeEvent.INVOKE, onAppInvoke);
-            FlexGlobals.topLevelApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+            var application:WindowedApplication = WindowedApplication(FlexGlobals.topLevelApplication);
+            application.showStatusBar = false;
+            application.addEventListener(InvokeEvent.INVOKE, onAppInvoke);
+            if (application.stage) {
+                application.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+            } else {
+                application.addEventListener(Event.ADDED_TO_STAGE, onAppAddedToStage);
+            }
+        }
+
+        private function onAppAddedToStage(event:Event):void {
+            event.target.removeEventListener(Event.ADDED_TO_STAGE, onAppAddedToStage);
+            event.target.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         }
 
         private function onAppInvoke(event:InvokeEvent):void {
