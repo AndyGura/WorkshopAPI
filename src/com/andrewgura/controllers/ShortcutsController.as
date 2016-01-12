@@ -37,6 +37,9 @@ public class ShortcutsController {
         if (item.type == "importEntry") {
             MainController.importFiles(item.importTypeVO);
         }
+        if (item.type == "createSomeTypeOfProject") {
+            MainController.createNewFile(item.typeIndex);
+        }
         if (!MENU_ACTIONS_MAP) {
             prepareMenuActionsMap();
         }

@@ -7,6 +7,9 @@ public class FileTypeVO {
     public var description:String;
 
     public function FileTypeVO(description:String, ...extensions) {
+        while (extensions.length == 1 && extensions[0] is Array) {
+            extensions = extensions[0];
+        }
         this.extensions = extensions;
         this.description = description;
     }
