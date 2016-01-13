@@ -4,15 +4,14 @@ import flash.desktop.NativeApplication;
 [Bindable]
 public class WorkshopConfigVO {
 
+    public var projectClass:Class;
     public var editorClass:Class;
+    public var settingsPanelClass:Class;
     public var appName:String;
     public var appVersion:String;
 
-    public var projectFileTypes:Array = [];         //FileTypeVO
-    public var settingsPanelClasses:Array = [];    //Class extends SettingsPanel
-    public var projectClasses:Array = [];          //Class extends ProjectVO
-
     public var importTypes:Array = [];
+    public var projectFileType:FileTypeVO;
 
     public function get allSupportedImportTypes():FileTypeVO {
         if (!importTypes || importTypes.length == 0) {
@@ -25,32 +24,6 @@ public class WorkshopConfigVO {
         }
         output.extensions = extensions;
         return output;
-    }
-
-    public function get projectsFileTypeFilters():Array {
-        var output:Array = [];
-        for each (var fileType:FileTypeVO in projectFileTypes) {
-            output.push(fileType.fileFilter);
-        }
-        return output;
-    }
-
-    public function getProjectClassByExtension(extension:String):Class {
-        for (var i:Number = 0; i < projectFileTypes.length; i++) {
-            if (FileTypeVO(projectFileTypes[i]).extensions.indexOf(extension) > -1) {
-                return Class(projectClasses[i]);
-            }
-        }
-        return null;
-    }
-
-    public function getSettingsPanelClassByExtension(extension:String):Class {
-        for (var i:Number = 0; i < projectFileTypes.length; i++) {
-            if (FileTypeVO(projectFileTypes[i]).extensions.indexOf(extension) > -1) {
-                return Class(settingsPanelClasses[i]);
-            }
-        }
-        return null;
     }
 
     public function WorkshopConfigVO() {

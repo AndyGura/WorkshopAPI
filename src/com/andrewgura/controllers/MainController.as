@@ -5,7 +5,6 @@ import com.andrewgura.models.MainModel;
 import com.andrewgura.ui.popup.AppPopups;
 import com.andrewgura.ui.popup.PopupFactory;
 import com.andrewgura.vo.FileTypeVO;
-import com.andrewgura.vo.ImportFileTypeVO;
 import com.andrewgura.vo.ProjectVO;
 
 import flash.desktop.NativeApplication;
@@ -55,9 +54,8 @@ public class MainController {
         NativeApplication.nativeApplication.activeWindow.title = newTitle;
     }
 
-    public static function createNewFile(projectIndex:Number = 0):void {
-        mainModel.currentProject = new mainModel.config.projectClasses[projectIndex]();
-        mainModel.currentProject.extension = FileTypeVO(mainModel.config.projectFileTypes[projectIndex]).extensions[0];
+    public static function createNewFile():void {
+        mainModel.currentProject = new mainModel.config.projectClass();
         updateAppTitle();
         updateMainMenu();
         mainModel.currentProject.addEventListener(
@@ -76,7 +74,7 @@ public class MainController {
         }
         f.addEventListener(Event.SELECT, onFileSelected);
         f.addEventListener(Event.CANCEL, onFileSelectionCancelled);
-        f.browse(mainModel.config.projectsFileTypeFilters);
+        f.browse([mainModel.config.projectFileType.fileFilter]);
 
         function onFileSelected(event:Event):void {
             f.removeEventListener(Event.SELECT, onFileSelected);
@@ -139,9 +137,7 @@ public class MainController {
             f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             var data:ByteArray = f.data;
             var name:String = f.name.substr(0, f.name.lastIndexOf('.'));
-            var projectClass:Class = mainModel.config.getProjectClassByExtension(f.extension);
-            mainModel.currentProject = new projectClass();
-            mainModel.currentProject.extension = f.extension;
+            mainModel.currentProject = new mainModel.config.projectClass();
             mainModel.currentProject.deserialize(name, f.nativePath, data);
             updateAppTitle();
             updateMainMenu();
@@ -199,7 +195,7 @@ public class MainController {
         f.addEventListener(Event.COMPLETE, onSaveAsComplete);
         f.addEventListener(Event.CANCEL, onSaveAsCancel);
         f.addEventListener(IOErrorEvent.IO_ERROR, onSaveIOError);
-        f.save(project.serialize(), project.name + '.' + project.extension);
+        f.save(project.serialize(), project.name + '.' + mainModel.config.projectFileType.extensions[0]);
     }
 
     private static function onSaveAsComplete(event:Event):void {
@@ -269,7 +265,7 @@ public class MainController {
     }
 
     public static function openProjectSettings():void {
-        if (!mainModel.config.getSettingsPanelClassByExtension(mainModel.currentProject.extension)) {
+        if (!mainModel.config.settingsPanelClass) {
             return;
         }
         PopupFactory.instance.showPopup(
@@ -277,7 +273,7 @@ public class MainController {
                 '', true,
                 {
                     project: mainModel.currentProject,
-                    settingsPanelClass: mainModel.config.getSettingsPanelClassByExtension(mainModel.currentProject.extension)
+                    settingsPanelClass: mainModel.config.settingsPanelClass
                 },
                 onProjectSettingsChange
         );
@@ -309,7 +305,7 @@ public class MainController {
             {label: AppMenuConsts.OPEN}];
         if (mainModel.config.importTypes && mainModel.config.importTypes.length > 0) {
             var importEntries:Array = [];
-            for each (var importTypeVO:ImportFileTypeVO in mainModel.config.importTypes) {
+            for each (var importTypeVO:FileTypeVO in mainModel.config.importTypes) {
                 importEntries.push({label: importTypeVO.description, type: "importEntry", importTypeVO: importTypeVO});
             }
             fileEntries.push({label: AppMenuConsts.IMPORT, children: importEntries});
@@ -334,14 +330,6 @@ public class MainController {
             fileEntries.push({type: "separator"});
         }
         fileEntries.push({label: AppMenuConsts.EXIT});
-
-        if (mainModel.config.projectFileTypes.length > 1) {
-            var openEntries:Array = [];
-            for each (var fileType:FileTypeVO in mainModel.config.projectFileTypes) {
-                openEntries.push({label: fileType.description, type: "createSomeTypeOfProject", typeIndex:mainModel.config.projectFileTypes.indexOf(fileType)});
-            }
-            fileEntries[0].children = openEntries;
-        }
 
         var editEntries:Array = [
             {label: AppMenuConsts.PROJECT_SETTINGS, enabled: mainModel.currentProject != null}

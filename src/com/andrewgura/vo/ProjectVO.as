@@ -8,7 +8,6 @@ public class ProjectVO {
     public var name:String = 'UnnamedProject';
     private var _isChangesSaved:Boolean = true;
     public var fileName:String;
-    public var extension:String;
 
     public function serialize():ByteArray {
         var output:ByteArray = new ByteArray();
