@@ -118,19 +118,27 @@ public class MainController {
     }
 
     public static function openFileByName(fileName:String):void {
-        for each (var project:ProjectVO in mainModel.openedProjects) {
-            if (project.fileName == fileName) {
-                mainModel.currentProject = project;
-                PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
-                addProjectToRecent(mainModel.currentProject.fileName);
-                return;
+        var extension:String = fileName.substr(fileName.lastIndexOf('.')+1);
+        if (mainModel.config.projectFileType.extensions.indexOf(extension.toLowerCase()) > -1) {
+            for each (var project:ProjectVO in mainModel.openedProjects) {
+                if (project.fileName == fileName) {
+                    mainModel.currentProject = project;
+                    PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+                    addProjectToRecent(mainModel.currentProject.fileName);
+                    return;
+                }
+            }
+            var f:File = File.applicationDirectory.resolvePath(fileName);
+            f.addEventListener(Event.COMPLETE, onFileLoaded);
+            f.addEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
+            f.load();
+        } else {
+            for each (var type:FileTypeVO in mainModel.config.importTypes) {
+                if (type.extensions.indexOf(extension.toLowerCase()) > -1) {
+                    importFileByName(fileName);
+                }
             }
         }
-
-        var f:File = File.applicationDirectory.resolvePath(fileName);
-        f.addEventListener(Event.COMPLETE, onFileLoaded);
-        f.addEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
-        f.load();
 
         function onFileLoaded(event:Event):void {
             f.removeEventListener(Event.COMPLETE, onFileLoaded);
@@ -163,6 +171,47 @@ public class MainController {
             f.removeEventListener(Event.COMPLETE, onFileLoaded);
             f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
             PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't load project!\n" + event.text);
+        }
+
+    }
+
+    public static function importFileByName(fileName:String):void {
+
+        var f:File = File.applicationDirectory.resolvePath(fileName);
+        f.addEventListener(Event.COMPLETE, onFileLoaded);
+        f.addEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
+        f.load();
+
+        function onFileLoaded(event:Event):void {
+            f.removeEventListener(Event.COMPLETE, onFileLoaded);
+            f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
+            var name:String = f.name.substr(0, f.name.lastIndexOf('.'));
+            mainModel.currentProject = new mainModel.config.projectClass();
+            mainModel.currentProject.name = name;
+            mainModel.currentProject.importFiles([event.target]);
+            updateAppTitle();
+            updateMainMenu();
+            mainModel.currentProject.addEventListener(
+                    "isChangesSavedChanged",
+                    function handle(e:Event):void {
+                        updateAppTitle();
+                        updateMainMenu();
+                    }
+            );
+            mainModel.defaultProjectPath = f.nativePath.substr(
+                    0,
+                    Math.max(
+                            f.nativePath.lastIndexOf('/'),
+                            f.nativePath.lastIndexOf('\\')
+                    )
+            );
+            PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+        }
+
+        function onFileLoadError(event:IOErrorEvent):void {
+            f.removeEventListener(Event.COMPLETE, onFileLoaded);
+            f.removeEventListener(IOErrorEvent.IO_ERROR, onFileLoadError);
+            PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't open file!\n" + event.text);
         }
 
     }
