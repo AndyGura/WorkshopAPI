@@ -18,6 +18,7 @@ public class ShortcutsController {
         MENU_ACTIONS_MAP[AppMenuConsts.CLOSE] = MainController.closeCurrentProject;
         MENU_ACTIONS_MAP[AppMenuConsts.EXIT] = MainController.exitEditor;
         MENU_ACTIONS_MAP[AppMenuConsts.PROJECT_SETTINGS] = MainController.openProjectSettings;
+        MENU_ACTIONS_MAP[AppMenuConsts.WORKSHOP_SETTINGS] = MainController.openWorkshopSettings;
     }
 
     private static function prepareCtrlKeyActionsMap():void {

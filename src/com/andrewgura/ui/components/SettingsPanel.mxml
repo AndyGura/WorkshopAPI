@@ -5,17 +5,17 @@
 
     <fx:Script><![CDATA[
         import com.andrewgura.vo.ProjectVO;
-        [Bindable]
-        private var _project:ProjectVO;
-        [Bindable(event="projectChanged")]
-        public function get project():ProjectVO {
-            return _project;
-        }
 
-        public function set project(value:ProjectVO):void {
-            if (_project == value) return;
-            _project = value;
-            dispatchEvent(new Event("projectChanged"));
+        [Bindable]
+        public var project:ProjectVO;
+
+        [Bindable]
+        protected var _data:Object;
+        public function set data(value:Object):void {
+            if (value && value.project) {
+                project = value.project;
+            }
+            _data = value;
         }
 
         public function getChangesObject():* {

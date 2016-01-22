@@ -28,7 +28,7 @@
         protected function onAddedToStage(event:Event):void {
             var settingsPanelClass:Class = extData.settingsPanelClass;
             settingsPanel = new settingsPanelClass();
-            settingsPanel.project = extData.project;
+            settingsPanel.data = extData.data;
             popupContent.push(settingsPanel);
         }
         ]]>

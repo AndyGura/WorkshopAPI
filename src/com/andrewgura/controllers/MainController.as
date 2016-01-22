@@ -14,6 +14,7 @@ import flash.events.IOErrorEvent;
 import flash.filesystem.File;
 import flash.filesystem.FileMode;
 import flash.filesystem.FileStream;
+import flash.net.SharedObject;
 import flash.utils.ByteArray;
 
 import mx.collections.ArrayCollection;
@@ -24,8 +25,9 @@ public class MainController {
 
     public static function initApplication(model:MainModel):void {
         mainModel = model;
-        mainModel.defaultProjectPath = PersistanceController.getEncryptedResource(SharedObjectConsts.DEFAULT_PATH);
+        mainModel.defaultProjectPath = PersistanceController.getResource(SharedObjectConsts.DEFAULT_PATH);
         mainModel.recentProjectFileNames = new ArrayCollection(PersistanceController.getResource(SharedObjectConsts.RECENT_PROJECTS));
+        mainModel.workshopSettings = PersistanceController.getResource(SharedObjectConsts.WORKSHOP_SETTINGS);
         updateAppTitle();
         updateMainMenu();
         mainModel.addEventListener(
@@ -123,7 +125,7 @@ public class MainController {
             for each (var project:ProjectVO in mainModel.openedProjects) {
                 if (project.fileName == fileName) {
                     mainModel.currentProject = project;
-                    PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+                    PersistanceController.setResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
                     addProjectToRecent(mainModel.currentProject.fileName);
                     return;
                 }
@@ -163,7 +165,7 @@ public class MainController {
                             f.nativePath.lastIndexOf('\\')
                     )
             );
-            PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+            PersistanceController.setResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
             addProjectToRecent(mainModel.currentProject.fileName);
         }
 
@@ -205,7 +207,7 @@ public class MainController {
                             f.nativePath.lastIndexOf('\\')
                     )
             );
-            PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+            PersistanceController.setResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
         }
 
         function onFileLoadError(event:IOErrorEvent):void {
@@ -264,7 +266,7 @@ public class MainController {
                         f.nativePath.lastIndexOf('\\')
                 )
         );
-        PersistanceController.setEncryptedResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
+        PersistanceController.setResource(SharedObjectConsts.DEFAULT_PATH, mainModel.defaultProjectPath);
         addProjectToRecent(mainModel.currentProject.fileName);
         updateAppTitle();
     }
@@ -314,21 +316,41 @@ public class MainController {
     }
 
     public static function openProjectSettings():void {
-        if (!mainModel.config.settingsPanelClass) {
+        if (!mainModel.config.projectSettingsPanelClass) {
             return;
         }
         PopupFactory.instance.showPopup(
-                AppPopups.PROJECT_SETTINGS_POPUP,
+                AppPopups.SETTINGS_POPUP,
                 '', true,
                 {
-                    project: mainModel.currentProject,
-                    settingsPanelClass: mainModel.config.settingsPanelClass
+                    data: {project: mainModel.currentProject},
+                    settingsPanelClass: mainModel.config.projectSettingsPanelClass
                 },
                 onProjectSettingsChange
         );
 
         function onProjectSettingsChange(data:*):void {
             mainModel.currentProject.applySettingsChanges(data);
+        }
+    }
+
+    public static function openWorkshopSettings():void {
+        if (!mainModel.config.workshopSettingsPanelClass) {
+            return;
+        }
+        PopupFactory.instance.showPopup(
+                AppPopups.SETTINGS_POPUP,
+                '', true,
+                {
+                    data: mainModel.workshopSettings,
+                    settingsPanelClass: mainModel.config.workshopSettingsPanelClass
+                },
+                onWorkshopSettingsChange
+        );
+
+        function onWorkshopSettingsChange(data:*):void {
+            mainModel.workshopSettings = data;
+            PersistanceController.setResource(SharedObjectConsts.WORKSHOP_SETTINGS, data);
         }
     }
 
@@ -381,7 +403,8 @@ public class MainController {
         fileEntries.push({label: AppMenuConsts.EXIT});
 
         var editEntries:Array = [
-            {label: AppMenuConsts.PROJECT_SETTINGS, enabled: mainModel.currentProject != null}
+            {label: AppMenuConsts.PROJECT_SETTINGS, enabled: mainModel.currentProject != null},
+            {label: AppMenuConsts.WORKSHOP_SETTINGS}
         ];
 
         var data:Array = [

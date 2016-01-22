@@ -6,7 +6,8 @@ public class WorkshopConfigVO {
 
     public var projectClass:Class;
     public var editorClass:Class;
-    public var settingsPanelClass:Class;
+    public var projectSettingsPanelClass:Class;
+    public var workshopSettingsPanelClass:Class;
     public var appName:String;
     public var appVersion:String;
 

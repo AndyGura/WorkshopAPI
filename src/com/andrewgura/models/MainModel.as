@@ -13,6 +13,8 @@ public class MainModel {
     public var menuDataProvider:Array;
 
     public var config:WorkshopConfigVO;
+
+    public var workshopSettings:Object;
     public var defaultProjectPath:String;
 
     public var recentProjectFileNames:ArrayCollection;

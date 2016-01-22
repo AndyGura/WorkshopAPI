@@ -1,9 +1,10 @@
 package com.andrewgura.vo {
 import flash.events.Event;
+import flash.events.EventDispatcher;
 import flash.utils.ByteArray;
 
 [Bindable]
-public class ProjectVO {
+public class ProjectVO extends EventDispatcher {
 
     public var name:String = 'UnnamedProject';
     private var _isChangesSaved:Boolean = true;
