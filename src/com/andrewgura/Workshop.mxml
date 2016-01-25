@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
-         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:components="com.andrewgura.ui.components.*"
          creationComplete="onCreationComplete(event)"
          resize="onResize(event)"
          styleName="editor">
@@ -10,7 +10,6 @@
         import com.andrewgura.controllers.MainController;
         import com.andrewgura.controllers.ShortcutsController;
         import com.andrewgura.models.MainModel;
-        import com.andrewgura.ui.components.Editor;
         import com.andrewgura.ui.popup.PopupFactory;
         import com.andrewgura.vo.WorkshopConfigVO;
 
@@ -27,18 +26,8 @@
         [Bindable]
         public var config:WorkshopConfigVO;
 
-        [Bindable]
-        public var editor:Editor;
-
         private function onCreationComplete(event:FlexEvent):void {
             mainModel.config = config;
-            editor = new mainModel.config.editorClass();
-            editor.includeInLayout = false;
-            editor.width = editorHolder.width - 10;
-            editor.height = editorHolder.height - 10;
-            editor.x = 5;
-            editor.y = 5;
-            editorHolder.addElement(editor);
             MainController.initApplication(mainModel);
             var application:WindowedApplication = WindowedApplication(FlexGlobals.topLevelApplication);
             application.showStatusBar = false;
@@ -81,9 +70,6 @@
         ]]>
   </fx:Script>
 
-    <fx:Binding source="mainModel.currentProject" destination="editor.project"/>
-    <fx:Binding source="editorHolder.width-10" destination="editor.width"/>
-    <fx:Binding source="editorHolder.height-10" destination="editor.height"/>
 
     <s:VGroup width="100%" height="100%" gap="0">
         <mx:MenuBar id="menuBar" width="100%" height="24" top="0"
@@ -95,8 +81,9 @@
                   selectedIndex="@{mainModel.currentProjectIndex}"
                   visible="{mainModel.openedProjects.length>1}" includeInLayout="{mainModel.openedProjects.length>1}"/>
 
-        <s:Group id="editorHolder"
-                 width="100%" height="100%"/>
+        <components:EditorHolder width="100%" height="100%"
+                                 projects="{mainModel.openedProjects}" currentProjectIndex="{mainModel.currentProjectIndex}"
+                                 editorClass="{mainModel.config.editorClass}"/>
 
     </s:VGroup>
 
