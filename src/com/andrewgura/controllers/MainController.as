@@ -14,7 +14,6 @@ import flash.events.IOErrorEvent;
 import flash.filesystem.File;
 import flash.filesystem.FileMode;
 import flash.filesystem.FileStream;
-import flash.net.SharedObject;
 import flash.utils.ByteArray;
 
 import mx.collections.ArrayCollection;
@@ -120,7 +119,7 @@ public class MainController {
     }
 
     public static function openFileByName(fileName:String):void {
-        var extension:String = fileName.substr(fileName.lastIndexOf('.')+1);
+        var extension:String = fileName.substr(fileName.lastIndexOf('.') + 1);
         if (mainModel.config.projectFileType.extensions.indexOf(extension.toLowerCase()) > -1) {
             for each (var project:ProjectVO in mainModel.openedProjects) {
                 if (project.fileName == fileName) {
@@ -393,9 +392,8 @@ public class MainController {
         if (mainModel.recentProjectFileNames && mainModel.recentProjectFileNames.length > 0) {
             for each (var recentFileName:String in mainModel.recentProjectFileNames) {
                 fileEntries.push({
-                    label: recentFileName.substring(Math.max(recentFileName.lastIndexOf('/'), recentFileName.lastIndexOf('\\')) + 1, recentFileName.length - 4),
-                    type: "recentFile",
-                    fullFileName: recentFileName
+                    label: recentFileName,
+                    type: "recentFile"
                 });
             }
             fileEntries.push({type: "separator"});

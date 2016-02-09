@@ -32,7 +32,7 @@ public class ShortcutsController {
     public static function doMenuItemAction(item:*):void {
         var label:String = item.label;
         if (item.type == "recentFile") {
-            MainController.openFileByName(item.fullFileName);
+            MainController.openFileByName(item.label);
             return;
         }
         if (item.type == "importEntry") {
