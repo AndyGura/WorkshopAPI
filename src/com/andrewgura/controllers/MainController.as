@@ -118,6 +118,12 @@ public class MainController {
         mainModel.currentProject.importFiles(fileList);
     }
 
+    public static function openFiles(files:Array):void {
+        for each (var file:File in files) {
+            openFileByName(file.nativePath);
+        }
+    }
+
     public static function openFileByName(fileName:String):void {
         var extension:String = fileName.substr(fileName.lastIndexOf('.') + 1);
         if (mainModel.config.projectFileType.extensions.indexOf(extension.toLowerCase()) > -1) {

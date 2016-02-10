@@ -42,6 +42,8 @@
         private function onAppAddedToStage(event:Event):void {
             event.target.removeEventListener(Event.ADDED_TO_STAGE, onAppAddedToStage);
             event.target.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+            event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, dragEnterHandler);
+            event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, dragDropHandler);
         }
 
         private function onAppInvoke(event:InvokeEvent):void {
@@ -58,6 +60,15 @@
                 }
                 ShortcutsController.doCtrlShortcutAction(event.keyCode);
             }
+        }
+
+        protected function dragEnterHandler(event:NativeDragEvent):void {
+            NativeDragManager.acceptDragDrop(stage);
+        }
+
+        protected function dragDropHandler(event:NativeDragEvent):void {
+            var dropFiles:Array = event.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+            MainController.openFiles(dropFiles);
         }
 
         private function onMenuItemClick(event:MenuEvent):void {
