@@ -44,6 +44,7 @@
             event.target.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
             event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, dragEnterHandler);
             event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, dragDropHandler);
+            event.target.stage.nativeWindow.addEventListener(Event.CLOSING, onAppClose);
         }
 
         private function onAppInvoke(event:InvokeEvent):void {
@@ -71,6 +72,11 @@
             MainController.openFiles(dropFiles);
         }
 
+        private function onAppClose(event:Event):void {
+            event.preventDefault();
+            MainController.exitEditor();
+        }
+
         private function onMenuItemClick(event:MenuEvent):void {
             ShortcutsController.doMenuItemAction(event.item);
         }
@@ -78,6 +84,7 @@
         protected function onResize(event:ResizeEvent):void {
             PopupFactory.instance.centerAllPopups();
         }
+
         ]]>
   </fx:Script>
 
