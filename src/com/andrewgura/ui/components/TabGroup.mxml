@@ -4,6 +4,7 @@
 
     <fx:Metadata>
         [DefaultProperty("stuffContent")]
+        [Event(name="closeTab",type="flash.events.DataEvent")]
     </fx:Metadata>
 
     <fx:Script><![CDATA[

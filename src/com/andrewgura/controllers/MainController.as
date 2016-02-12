@@ -289,16 +289,41 @@ public class MainController {
         PopupFactory.instance.showPopup(AppPopups.INFO_POPUP, "Can't save project!\n" + event.text);
     }
 
+    public static function closeProjectByIndex(index:Number):void {
+        if (isNaN(index) || index < 0 || index >= mainModel.openedProjects.length) {
+            return;
+        }
+        closeProject(ProjectVO(mainModel.openedProjects.getItemAt(index)));
+    }
+
     public static function closeCurrentProject():void {
-        if (!mainModel.currentProject.isChangesSaved) {
-            PopupFactory.instance.showPopup(AppPopups.CONFIRM_POPUP, "All unsaved data will be lost! Are you sure?", true, null, onProceed);
+        closeProject(mainModel.currentProject);
+    }
+
+    public static function closeProject(project:ProjectVO):void {
+        var decrementIndexIfRemove:Boolean = false;
+        if (!project || mainModel.openedProjects.getItemIndex(project) == -1) {
+            return;
+        }
+        if (!project.isChangesSaved) {
+            var returnAfterIndex:Number = mainModel.currentProjectIndex;
+            mainModel.currentProject = project;
+            decrementIndexIfRemove = mainModel.currentProjectIndex < returnAfterIndex;
+            PopupFactory.instance.showPopup(AppPopups.CONFIRM_POPUP, "All unsaved data will be lost! Are you sure?", true, null, onProceed, onCancel);
         } else {
             onProceed();
         }
         function onProceed(...args):void {
-            mainModel.currentProject = null;
-            updateAppTitle();
-            updateMainMenu();
+            mainModel.openedProjects.removeItem(project);
+            if (isNaN(returnAfterIndex)) {
+                returnAfterIndex = mainModel.currentProjectIndex;
+            } else if (decrementIndexIfRemove) {
+                returnAfterIndex--;
+            }
+            mainModel.currentProjectIndex = Math.min(Math.max(returnAfterIndex, 0), mainModel.openedProjects.length - 1);
+        }
+        function onCancel(...args):void {
+            mainModel.currentProjectIndex = Math.min(Math.max(returnAfterIndex, 0), mainModel.openedProjects.length - 1);
         }
     }
 

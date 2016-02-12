@@ -28,7 +28,7 @@
 
     <popup:titleContent>
         <s:Label text="Please confirm an action" width="100%" textAlign="center"/>
-        <s:Button styleName="breezeCloseButton" click="onCloseClick(event)"/>
+        <s:Button styleName="breezeCloseWindowButton" click="onCloseClick(event)"/>
     </popup:titleContent>
 
     <popup:popupContent>
