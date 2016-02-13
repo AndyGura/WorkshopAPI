@@ -109,7 +109,7 @@
 
         <components:TabGroup width="100%" height="100%"
                              paddingLeft="3" paddingBottom="3" paddingRight="3" paddingTop="3"
-                             dataProvider="{mainModel.openedProjects}" labelField="name"
+                             dataProvider="{mainModel.openedProjects}" labelField="displayName"
                              selectedIndex="@{mainModel.currentProjectIndex}"
                              closeTab="onCloseTab(event)">
 

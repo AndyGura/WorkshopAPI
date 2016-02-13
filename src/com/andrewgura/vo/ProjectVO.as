@@ -3,10 +3,13 @@ import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.utils.ByteArray;
 
+import mx.events.PropertyChangeEvent;
+import mx.events.PropertyChangeEventKind;
+
 [Bindable]
 public class ProjectVO extends EventDispatcher {
 
-    public var name:String = 'UnnamedProject';
+    private var _name:String = 'UnnamedProject';
     private var _isChangesSaved:Boolean = true;
     public var fileName:String;
 
@@ -16,7 +19,7 @@ public class ProjectVO extends EventDispatcher {
     }
 
     public function deserialize(name:String, fileName:String, data:ByteArray):void {
-        this.name = name;
+        this._name = name;
         this.fileName = fileName;
     }
 
@@ -30,8 +33,13 @@ public class ProjectVO extends EventDispatcher {
 
     public function set isChangesSaved(value:Boolean):void {
         if (_isChangesSaved == value) return;
+        var oldDisplayName:String = displayName;
         _isChangesSaved = value;
         dispatchEvent(new Event("isChangesSavedChanged"));
+        dispatchEvent(new Event("displayNameChanged"));
+        dispatchEvent(new PropertyChangeEvent(
+                PropertyChangeEvent.PROPERTY_CHANGE, true, false,
+                PropertyChangeEventKind.UPDATE, "displayName", oldDisplayName, displayName, this));
     }
 
     public function applySettingsChanges(changes:*):void {
@@ -49,6 +57,31 @@ public class ProjectVO extends EventDispatcher {
         if (atLeastOnePropertyChanged) {
             isChangesSaved = false;
         }
+    }
+
+    public function get displayName():String {
+        return name + (isChangesSaved ? '' : '*');
+    }
+
+    [Bindable(event="displayNameChanged")]
+    public function get displayFullName():String {
+        return (fileName || name) + (isChangesSaved ? '' : '*');
+    }
+
+    [Bindable(event="nameChanged")]
+    public function get name():String {
+        return _name;
+    }
+
+    public function set name(value:String):void {
+        if (_name == value) return;
+        var oldDisplayName:String = displayName;
+        _name = value;
+        dispatchEvent(new Event("nameChanged"));
+        dispatchEvent(new Event("displayNameChanged"));
+        dispatchEvent(new PropertyChangeEvent(
+                PropertyChangeEvent.PROPERTY_CHANGE, true, false,
+                PropertyChangeEventKind.UPDATE, "displayName", oldDisplayName, displayName, this));
     }
 }
 }

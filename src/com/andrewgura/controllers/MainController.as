@@ -40,14 +40,7 @@ public class MainController {
     }
 
     public static function updateAppTitle():void {
-        var newTitle:String = '';
-        if (mainModel.currentProject) {
-            newTitle = mainModel.currentProject.name;
-            if (!mainModel.currentProject.isChangesSaved) {
-                newTitle += "*";
-            }
-            newTitle += " - ";
-        }
+        var newTitle:String = mainModel.currentProject ? mainModel.currentProject.displayFullName + " - " : '';
         newTitle += mainModel.config.appName + " v" + mainModel.config.appVersion;
         if (!NativeApplication.nativeApplication || !NativeApplication.nativeApplication.activeWindow) {
             return;
