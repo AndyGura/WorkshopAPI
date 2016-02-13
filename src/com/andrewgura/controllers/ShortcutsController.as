@@ -2,6 +2,8 @@ package com.andrewgura.controllers {
 import com.andrewgura.consts.AppMenuConsts;
 
 import flash.ui.Keyboard;
+
+import flash.ui.Keyboard;
 import flash.utils.Dictionary;
 
 public class ShortcutsController {
@@ -23,10 +25,12 @@ public class ShortcutsController {
 
     private static function prepareCtrlKeyActionsMap():void {
         CTRL_KEY_ACTIONS_MAP = new Dictionary();
-        CTRL_KEY_ACTIONS_MAP[Keyboard.N] = MainController.createNewFile;
-        CTRL_KEY_ACTIONS_MAP[Keyboard.O] = MainController.openFile;
-        CTRL_KEY_ACTIONS_MAP[Keyboard.S] = MainController.saveCurrentProject;
-        CTRL_KEY_ACTIONS_MAP[Keyboard.X] = MainController.exitEditor;
+        CTRL_KEY_ACTIONS_MAP[Keyboard.N.toString()] = MainController.createNewFile;
+        CTRL_KEY_ACTIONS_MAP[Keyboard.O.toString()] = MainController.openFile;
+        CTRL_KEY_ACTIONS_MAP[Keyboard.S.toString()] = MainController.saveCurrentProject;
+        CTRL_KEY_ACTIONS_MAP[Keyboard.X.toString()] = MainController.exitEditor;
+        CTRL_KEY_ACTIONS_MAP[Keyboard.TAB.toString()] = MainController.switchToNextProject;
+        CTRL_KEY_ACTIONS_MAP[Keyboard.SHIFT.toString()+Keyboard.TAB.toString()] = MainController.switchToPrevProject;
     }
 
     public static function doMenuItemAction(item:*):void {
@@ -46,7 +50,7 @@ public class ShortcutsController {
         }
     }
 
-    public static function doCtrlShortcutAction(keyCode:uint):void {
+    public static function doCtrlShortcutAction(keyCode:String):void {
         if (!CTRL_KEY_ACTIONS_MAP) {
             prepareCtrlKeyActionsMap();
         }

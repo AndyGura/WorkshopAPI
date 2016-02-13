@@ -56,6 +56,14 @@ public class MainModel {
     public function set currentProjectIndex(value:Number):void {
         if (_currentProjectIndex == value) return;
         _currentProjectIndex = value;
+        if (_openedProjects.length > 0) {
+            while (_currentProjectIndex >= _openedProjects.length) {
+                _currentProjectIndex -= _openedProjects.length;
+            }
+            while (_currentProjectIndex < 0) {
+                _currentProjectIndex += _openedProjects.length;
+            }
+        }
         dispatchEvent(new Event("currentProjectIndexChanged"));
         dispatchEvent(new Event("currentProjectChange"));
     }

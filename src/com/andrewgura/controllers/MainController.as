@@ -327,6 +327,20 @@ public class MainController {
         }
     }
 
+    public static function switchToNextProject():void {
+        if (mainModel.openedProjects.length < 2) {
+            return;
+        }
+        mainModel.currentProjectIndex++;
+    }
+
+    public static function switchToPrevProject():void {
+        if (mainModel.openedProjects.length < 2) {
+            return;
+        }
+        mainModel.currentProjectIndex--;
+    }
+
     public static function exitEditor():void {
         var isAllChangesSaved:Boolean = true;
         for each (var project:ProjectVO in mainModel.openedProjects) {

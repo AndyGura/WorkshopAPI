@@ -60,7 +60,14 @@
                 if (event.keyCode == Keyboard.CONTROL) {
                     return;
                 }
-                ShortcutsController.doCtrlShortcutAction(event.keyCode);
+                if (event.keyCode == Keyboard.TAB) {
+                    event.preventDefault();
+                }
+                var keyCode:String = event.keyCode.toString();
+                if (event.shiftKey) {
+                    keyCode = Keyboard.SHIFT + keyCode;
+                }
+                ShortcutsController.doCtrlShortcutAction(keyCode);
             }
         }
 
