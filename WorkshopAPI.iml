@@ -4,6 +4,11 @@
     <configurations>
       <configuration name="WorkshopAPI" target-platform="Desktop" output-type="Library" output-file="WorkshopAPI.swc" output-folder="$MODULE_DIR$/bin">
         <dependencies target-player="11.9">
+          <entries>
+            <entry module-name="BreezeTheme" build-configuration-name="BreezeTheme">
+              <dependency linkage="Merged" />
+            </entry>
+          </entries>
           <sdk name="4.14.1.air-20.0" />
         </dependencies>
         <compiler-options />
@@ -23,5 +28,6 @@
     <orderEntry type="jdk" jdkName="4.14.1.air-20.0" jdkType="Flex SDK Type (new)" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="WorkshopAPI" level="project" />
+    <orderEntry type="module" module-name="BreezeTheme" exported="" />
   </component>
 </module>
