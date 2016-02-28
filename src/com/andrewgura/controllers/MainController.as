@@ -218,7 +218,7 @@ public class MainController {
 
     public static function saveCurrentProject():void {
         var project:ProjectVO = mainModel.currentProject;
-        if (project.isChangesSaved) {
+        if (!project || project.isChangesSaved) {
             return;
         }
         if (!project.fileName) {
