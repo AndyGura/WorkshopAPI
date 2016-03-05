@@ -36,7 +36,8 @@
             <s:Group id="stuffContentGroup" width="100%" height="100%"/>
         </s:Group>
 
-        <s:TabBar id="tabBar" isClosingTabEnabled="true"
+        <s:TabBar id="tabBar"
+                  isClosingTabEnabled="true" isSwitchOnDragEnabled="true"
                   top="0" left="{getStyle('cornerRadius')}" maxWidth="{container.width-2*getStyle('cornerRadius')}"
                   dataProvider="{dataProvider}" labelField="{labelField}"
                   selectedIndex="@{selectedIndex}"
