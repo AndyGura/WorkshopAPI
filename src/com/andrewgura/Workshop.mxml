@@ -47,7 +47,6 @@
             event.target.stage.addEventListener(DragEvent.DRAG_ENTER, dragEnterHandler);
             event.target.stage.addEventListener(DragEvent.DRAG_DROP, dragDropHandler);
             event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, nativeDragEnterHandler);
-            event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, nativeDragDropHandler);
             event.target.stage.nativeWindow.addEventListener(Event.CLOSING, onAppClose);
         }
 
@@ -78,18 +77,16 @@
             NativeDragManager.acceptDragDrop(this);
         }
 
-        protected function dragDropHandler(event:DragEvent):void {
-            mainModel.currentProject.processDragDrop(event);
-        }
-
         protected function nativeDragEnterHandler(event:NativeDragEvent):void {
             NativeDragManager.acceptDragDrop(stage);
         }
 
-        protected function nativeDragDropHandler(event:NativeDragEvent):void {
-            var dropFiles:Array = event.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+        protected function dragDropHandler(event:DragEvent):void {
+            var dropFiles:Array = event.dragSource.dataForFormat(ClipboardFormats.FILE_LIST_FORMAT) as Array;
             if (dropFiles) {
                 MainController.openFiles(dropFiles);
+            } else if (mainModel.currentProject) {
+                mainModel.currentProject.processDragDrop(event);
             }
         }
 
