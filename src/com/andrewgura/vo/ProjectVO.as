@@ -3,6 +3,8 @@ import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.utils.ByteArray;
 
+import mx.events.DragEvent;
+
 import mx.events.PropertyChangeEvent;
 import mx.events.PropertyChangeEventKind;
 
@@ -24,6 +26,9 @@ public class ProjectVO extends EventDispatcher {
     }
 
     public function importFiles(fileReferences:Array):void {
+    }
+
+    public function processDragDrop(event:DragEvent):void {
     }
 
     [Bindable(event="isChangesSavedChanged")]

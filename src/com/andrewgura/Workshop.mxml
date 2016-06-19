@@ -15,6 +15,7 @@
         import com.andrewgura.vo.WorkshopConfigVO;
 
         import mx.core.FlexGlobals;
+        import mx.events.DragEvent;
         import mx.events.FlexEvent;
         import mx.events.MenuEvent;
         import mx.events.ResizeEvent;
@@ -43,8 +44,10 @@
         private function onAppAddedToStage(event:Event):void {
             event.target.removeEventListener(Event.ADDED_TO_STAGE, onAppAddedToStage);
             event.target.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-            event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, dragEnterHandler);
-            event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, dragDropHandler);
+            event.target.stage.addEventListener(DragEvent.DRAG_ENTER, dragEnterHandler);
+            event.target.stage.addEventListener(DragEvent.DRAG_DROP, dragDropHandler);
+            event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, nativeDragEnterHandler);
+            event.target.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, nativeDragDropHandler);
             event.target.stage.nativeWindow.addEventListener(Event.CLOSING, onAppClose);
         }
 
@@ -71,13 +74,23 @@
             }
         }
 
-        protected function dragEnterHandler(event:NativeDragEvent):void {
+        protected function dragEnterHandler(event:DragEvent):void {
+            NativeDragManager.acceptDragDrop(this);
+        }
+
+        protected function dragDropHandler(event:DragEvent):void {
+            mainModel.currentProject.processDragDrop(event);
+        }
+
+        protected function nativeDragEnterHandler(event:NativeDragEvent):void {
             NativeDragManager.acceptDragDrop(stage);
         }
 
-        protected function dragDropHandler(event:NativeDragEvent):void {
+        protected function nativeDragDropHandler(event:NativeDragEvent):void {
             var dropFiles:Array = event.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
-            MainController.openFiles(dropFiles);
+            if (dropFiles) {
+                MainController.openFiles(dropFiles);
+            }
         }
 
         private function onAppClose(event:Event):void {
@@ -96,7 +109,6 @@
         private function onCloseTab(event:DataEvent):void {
             MainController.closeProjectByIndex(Number(event.data));
         }
-
         ]]>
   </fx:Script>
 
